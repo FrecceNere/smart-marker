@@ -77,7 +77,11 @@ chrome.runtime.onMessage.addListener((request) => {
   if (request.action === "toggle") isExtensionActive = request.isActive;
   else if (request.action === "clear") {
     document.querySelectorAll(".smart-marker-highlight").forEach(el => {
-      el.outerHTML = el.innerHTML;
+      const parent = el.parentNode;
+      if (parent) {
+        const textContent = el.textContent;
+        parent.replaceChild(document.createTextNode(textContent), el);
+      }
     });
   }
 });
