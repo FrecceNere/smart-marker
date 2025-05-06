@@ -101,7 +101,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     isExtensionActive = request.isActive;
   } else if (request.action === "clear") {
     document.querySelectorAll(".smart-marker-highlight").forEach(el => {
-      el.outerHTML = el.innerHTML;
+      const parent = el.parentNode;
+      if (parent) {
+        const textContent = document.createTextNode(el.textContent);
+        parent.replaceChild(textContent, el);
+      }
     });
     updateHighlightCount();
   } else if (request.action === "getCount") {
