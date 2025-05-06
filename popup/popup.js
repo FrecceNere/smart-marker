@@ -23,3 +23,18 @@ clearBtn.addEventListener("click", () => {
     chrome.tabs.sendMessage(tabs[0].id, { action: "clear" });
   });
 });
+
+chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  if (tabs[0]) {
+    chrome.tabs.sendMessage(tabs[0].id, { action: "getCount" }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.log('Error:', chrome.runtime.lastError);
+        return;
+      }
+      const countElement = document.getElementById('highlightCount');
+      if (countElement && response) {
+        countElement.textContent = response.count;
+      }
+    });
+  }
+});

@@ -58,10 +58,33 @@ function highlightSelection(color) {
 
     // Clear selection
     selection.removeAllRanges();
+
+    updateHighlightCount();
   } catch (error) {
     console.error('Error during highlighting:', error);
   }
 }
+
+function updateHighlightCount() {
+  const count = document.querySelectorAll('.smart-marker-highlight').length;
+  chrome.runtime.sendMessage({ 
+    action: 'updateCount', 
+    count: count 
+  });
+}
+
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.removedNodes.length > 0) {
+      updateHighlightCount();
+    }
+  });
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
+});
 
 // Show menu on mouse release
 document.addEventListener("mouseup", (e) => {
@@ -73,15 +96,17 @@ document.addEventListener("mouseup", (e) => {
 });
 
 // Handle messages from popup
-chrome.runtime.onMessage.addListener((request) => {
-  if (request.action === "toggle") isExtensionActive = request.isActive;
-  else if (request.action === "clear") {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "toggle") {
+    isExtensionActive = request.isActive;
+  } else if (request.action === "clear") {
     document.querySelectorAll(".smart-marker-highlight").forEach(el => {
-      const parent = el.parentNode;
-      if (parent) {
-        const textContent = el.textContent;
-        parent.replaceChild(document.createTextNode(textContent), el);
-      }
+      el.outerHTML = el.innerHTML;
     });
+    updateHighlightCount();
+  } else if (request.action === "getCount") {
+    const count = document.querySelectorAll('.smart-marker-highlight').length;
+    sendResponse({ count: count });
   }
+  return true;
 });

@@ -65,3 +65,15 @@ body {
     cursor: pointer;
     font-weight: bold;
   }
+
+  .stats {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+  }
+
+  #highlightCount {
+    font-weight: bold;
+    color: #2c3e50;
+  }
